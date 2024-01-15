@@ -6,7 +6,7 @@ on:
     types:
       - completed
 env:
-  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  GITHUB_TOKEN: ${{ secrets.REPO_MANAGEMENT_TOKEN }}
 jobs:
   generate_changelog:
     runs-on: ubuntu-latest
