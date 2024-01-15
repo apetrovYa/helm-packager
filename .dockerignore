@@ -1,0 +1,10 @@
+.git
+.githooks/
+.github/
+test/
+lib/
+node_modules
+tmp/
+logs/
+test/helm-commands/chart/
+```

@@ -1,0 +1,25 @@
+#!/usr/bin/env bash
+
+set -e
+
+log(){
+  message="${1}"
+  echo "[$(date)][INFO] $message"
+}
+
+dockerfile_lint() {
+  ## Invariant
+  ### Docker container engine is present, configured an running.
+  ### At the moment, other container run-times are not supported.
+  case "$(which docker)" in
+    *docker*)
+      docker run --rm -i ghcr.io/hadolint/hadolint < Dockerfile
+      ;;
+    *)
+      log "Container run-time not supported"
+      ;;
+  esac
+}
+
+# __MAIN__
+dockerfile_lint

@@ -1,0 +1,682 @@
+## Default settings for space-dependencies Helm chart.
+## This is a YAML-formatted file.
+##
+## NOTE:
+## This configuration file represents the primary way to configure the dependencies for Space On-Premises.
+## The list of dependencies is outlined in the Chart.yaml file.
+##
+## In the case of advanced deployments, it is highly likely that this default values.yaml file does not cover all your
+## needs. In such a case, please check out the values.yaml file of each dependency and get familiar with the additional
+## settings that this chart does not cover.
+
+## @section Global Parameters
+##
+global:
+  ## @param global.storageClass Provide the StorageClass name
+  ##
+  ## This resource must be an existent resource in the cluster that manages this configuration. Usually, a Kubernetes
+  ## administrator configures this resource.
+  ## Ref: https://kubernetes.io/docs/concepts/storage/storage-classes
+  ##
+  storageClass: standard
+  ## @param global.enabled Use this key to have conditional on either include the dependency chart or not
+  ##
+  enabled: false
+
+## @section Common parameters
+##
+
+## @param nameOverride Provide a prefix to partially override the lib.name in the local templates
+##
+nameOverride: ""
+## @param fullnameOverride Provide a name to override completely the lib.name in the local templates
+##
+fullnameOverride: ""
+## @param commonLabels Provide a map of key/value pairs of labels to be applied to all resources in the local templates
+##
+commonLabels: { }
+## @param commonAnnotations Provide a map of key/value pairs of annotations to be applied to all resources in the local templates
+##
+commonAnnotations: { }
+
+## @param limitRanges.enabled Enable default resources parameters for all pods
+## @param limitRanges.limits Specify a list of default values for required resources
+## Ref: https://kubernetes.io/docs/concepts/policy/limit-range/
+##
+limitRanges:
+  enabled: false
+  ## Example:
+  ##  - type: Container
+  ##    max:
+  ##      cpu: "500m"
+  ##      memory: "512Mi"
+  ##    min:
+  ##      cpu: "200m"
+  ##      memory: "256Mi"
+  limits: { }
+
+
+
+## @section Elasticsearch
+## This section configures a single node Elasticsearch cluster. The node has all responsibilities.
+## Ref: https://www.elastic.co/elasticsearch
+elasticsearch:
+  ## @skip elasticsearch.enabled
+  ##
+  enabled: true
+  ## @skip elasticsearch.image.pullPolicy
+  ## @skip elasticsearch.image.registry
+  ## @skip elasticsearch.image.repository
+  ## @skip elasticsearch.image.tag
+  ##
+  ## Note:
+  ## Because Bitnami does not provide support for ARM64 architecture, the below image is compatible with Bitnami Elasticsearch
+  ## chart. The compatibility is offered by bitnami-compat project on GitHub. Ref: https://github.com/ZCube/bitnami-compat
+  image:
+    registry: "ghcr.io"
+    repository: "zcube/bitnami-compat/elasticsearch"
+    tag: "7.17.9"
+    pullPolicy: Always
+  ## @skip elasticsearch.commonLabels
+  ##
+  commonLabels:
+    ## @skip elasticsearch.commonLabels.app.tld/distribution
+    ##
+    "app.tld/distribution": "standalone"
+  ## @param elasticsearch.clusterName Specify the name of the Elasticsearch cluster
+  ##
+  clusterName: space
+  master:
+    ## @skip elasticsearch.master.masterOnly
+    ##
+    masterOnly: false
+    ## @skip elasticsearch.master.replicaCount
+    ##
+    replicaCount: 1
+    ## @skip elasticsearch.master.nameOverride
+    ##
+    nameOverride: "node"
+    ## @skip elasticsearch.master.podAnnotations
+    podAnnotations: { }
+    ## @param elasticsearch.master.resources.limits.cpu Specify the maximum CPU to use
+    ## @param elasticsearch.master.resources.limits.memory Specify maximum Memory to use
+    ## @param elasticsearch.master.resources.requests.cpu Specify minimum CPU to use
+    ## @param elasticsearch.master.resources.requests.memory Specify minimum Memory to use
+    ##
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+      requests:
+        cpu: 1000m
+        memory: 1024Mi
+    ## @skip elasticsearch.master.livenessProbe.enabled
+    ## @skip elasticsearch.master.readinessProbe.enabled
+    livenessProbe:
+      enabled: false
+    readinessProbe:
+      enabled: false
+    ## @skip elasticsearch.master.podSecurityContext.enabled
+    ## @skip elasticsearch.master.podSecurityContext.fsGroup
+    podSecurityContext:
+      enabled: true
+      fsGroup: 1001
+    ## @skip elasticsearch.master.containerSecurityContext.enabled
+    ## @skip elasticsearch.master.containerSecurityContext.runAsNonRoot
+    ## @skip elasticsearch.master.containerSecurityContext.runAsUser
+    ## @skip elasticsearch.master.containerSecurityContext.allowPrivilegeEscalation
+    ## @skip elasticsearch.master.containerSecurityContext.readOnlyRootFilesystem
+    containerSecurityContext:
+      enabled: true
+      runAsNonRoot: true
+      runAsUser: 1001
+      allowPrivilegeEscalation: false
+      readOnlyRootFilesystem: false
+    ## @param elasticsearch.master.heapSize Specify how much memory to allocate as heap
+    ## Note: The recommended heapSize is half of the container's memory.
+    ##
+    heapSize: 512m
+    ## @param elasticsearch.master.persistence.size Specify the disk size
+    ##
+    persistence:
+      size: 10Gi
+      ## @skip elasticsearch.master.persistence.annotations
+      ##
+      annotations:
+        ## @skip elasticsearch.master.persistence.annotations.helm.sh/resource-policy
+        ##
+        helm.sh/resource-policy: "keep"
+  data:
+    ## @skip elasticsearch.data.replicaCount
+    ##
+    replicaCount: 0
+  coordinating:
+    ## @skip elasticsearch.coordinating.replicaCount
+    ##
+    replicaCount: 0
+  ingest:
+    ## @skip elasticsearch.ingest.replicaCount
+    ##
+    replicaCount: 0
+  ## @skip elasticsearch.sysctlImage.enabled
+  sysctlImage:
+    enabled: true
+## @section Minio
+## This section configures a single node Minio cluster. The cluster comes with a provisioned set of default buckets,
+## users, groups, credentials. The permissions for users are set per group.
+minio:
+  ## @skip minio.enabled
+  ##
+  enabled: true
+  ## @skip minio.serviceAccount.create
+  ##
+  serviceAccount:
+    create: false
+  image:
+    ## @skip minio.image.pullPolicy
+    ##
+    pullPolicy: Always
+    ## @skip minio.image.debug
+    ##
+    debug: false
+  ## @skip minio.commonLabels
+  ##
+  commonLabels:
+    ## @skip minio.commonLabels.app.tld/distribution
+    ##
+    "app.tld/distribution": "standalone"
+  ## @skip minio.commonAnnotations
+  ##
+  commonAnnotations: { }
+  ## @skip minio.podLabels
+  ##
+  podLabels: { }
+  ## @skip minio.podAnnotations
+  ## Example:
+  ##  podAnnotations:
+  ##    prometheus.io/scrape: "true"
+  ##    prometheus.io/path: "/minio/v2/metrics/cluster"
+  ##    prometheus.io/port: "9000"
+  ##
+  ## @skip minio.podAnnotations
+  podAnnotations: { }
+  ## @skip minio.mode
+  ##
+  mode: standalone
+  ## @param minio.resources.limits.cpu Specify the maximum CPU to use
+  ## @param minio.resources.limits.memory Specify the maximum Memory to use
+  ## @param minio.resources.requests.cpu Specify the minimum CPU to use
+  ## @param minio.resources.requests.memory Specify the minimum Memory to use
+  ##
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1024Mi
+    requests:
+      cpu: 1000m
+      memory: 1024Mi
+  auth:
+    ## @skip minio.auth.forceNewKeys
+    ##
+    forceNewKeys: true
+    ## @param minio.auth.rootUser Specify the name of the administrator user
+    ##
+    rootUser: admin
+    ## @param minio.auth.rootPassword Specify the password of the administrator user
+    ##
+    rootPassword: password
+  ## @param minio.defaultBuckets Specify the list of buckets to create (note: separate the bucket names with comma)
+  ##
+  defaultBuckets: "space-data,space-packages,space-vcs"
+  tls:
+    ## @skip minio.tls.enabled
+    ##
+    enabled: false
+  persistence:
+    ## @param minio.persistence.size Specify the size of the disk to use
+    ##
+    size: "10Gi"
+    ## @skip minio.persistence.annotations
+    ##
+    annotations:
+      ## @skip minio.persistence.annotations.helm.sh/resource-policy Specify how to recycle the storage resources of the Minio pod
+      ##
+      helm.sh/resource-policy: "keep"
+  provisioning:
+    ## @param minio.provisioning.enabled Enable the provisioning of users, groups and permission mappings
+    ##
+    enabled: true
+    ## @param minio.provisioning.users[0].username Specify the username of a new user to create. Notice that this is the Unique Access Key for programmatic access
+    ## @param minio.provisioning.users[0].password Specify the password of a new user to create. Notice that this is the corresponding Secret Key for programmatic access
+    ##
+    users:
+    - username: spaceServiceAccount
+      password: password
+    ## @param minio.provisioning.groups[0].name Specify the name of the main functional group
+    ## @param minio.provisioning.groups[0].members Specify the username of a user to add to the group. It must be one of minio.provisioning.users users
+    ## @param minio.provisioning.groups[0].policies Specify the permission level to assign to the group and all its members. Follow the least privilege principle
+    ##
+    groups:
+    - name: space
+      members:
+      - spaceServiceAccount
+      policies:
+      - readwrite
+    resources:
+      ## @param minio.provisioning.resources.limits.cpu Specify the maximum CPU to use
+      ## @param minio.provisioning.resources.limits.memory Specify the maximum Memory to use
+      ## @param minio.provisioning.resources.requests.cpu Specify the minimum CPU to use
+      ## @param minio.provisioning.resources.requests.memory Specify the minimum Memory to use
+      ##
+      limits:
+        cpu: 200m
+        memory: 128Mi
+      requests:
+        cpu: 200m
+        memory: 128Mi
+  ## @skip minio.extraVolumes
+  ## @skip minio.extraVolumeMounts
+  extraVolumes:
+  - name: mc
+    emptyDir: { }
+  extraVolumeMounts:
+  - name: mc
+    mountPath: /.mc
+## @section Postgresql
+## This section configures a single node Postgres cluster.
+## Ref: https://www.postgresql.org/docs
+postgresql:
+  ## @skip postgresql.enabled
+  ##
+  enabled: true
+  ## @skip postgresql.image.pullPolicy
+  image:
+    pullPolicy: Always
+  ## @skip postgresql.commonLabels
+  ##
+  commonLabels:
+    ## @skip postgresql.commonLabels.app.tld/distribution
+    ##
+    "app.tld/distribution": "standalone"
+  ## Configure the initialisation details of Postgresql server.
+  ##
+  auth:
+    ## @param postgresql.auth.enablePostgresUser Create a password for root user of the database server
+    ##
+    enablePostgresUser: true
+    ## @param postgresql.auth.postgresPassword Specify the password for the "postgres" admin user.
+    ##
+    postgresPassword: "password"
+    ## @param postgresql.auth.username Specify the name for a custom user
+    ##
+    username: "spaceServiceAccount"
+    ## @param postgresql.auth.password Specify the password for the custom user
+    ##
+    password: "password"
+    ## @param postgresql.auth.database Specify the name for a custom database to create
+    ##
+    database: "space"
+  ## @skip postgresql.architecture
+  ## NOTE: Do not change the value of the architecture!
+  architecture: standalone
+  ## Audit settings
+  ## https://github.com/bitnami/bitnami-docker-postgresql#auditing
+  ## @skip postgresql.audit.logHostname
+  ## @skip postgresql.audit.logConnections
+  ## @skip postgresql.audit.logDisconnections
+  ## @skip postgresql.audit.pgAuditLog
+  ## @skip postgresql.audit.pgAuditLogCatalog
+  ## @skip postgresql.audit.clientMinMessages
+  ## @skip postgresql.audit.logLinePrefix
+  ## @skip postgresql.audit.logTimezone
+  ##
+  audit:
+    logHostname: true
+    logConnections: true
+    logDisconnections: true
+    pgAuditLog: ""
+    pgAuditLogCatalog: "off"
+    clientMinMessages: error
+    logLinePrefix: ""
+    logTimezone: ""
+  primary:
+    ## @skip postgresql.primary.podAnnotations
+    podAnnotations: { }
+    ## Postgresql resource requests and limits
+    ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param postgresql.primary.resources.limits.memory Specify the maximum CPU to use
+    ## @param postgresql.primary.resources.limits.cpu Specify the maximum Memory to use
+    ## @param postgresql.primary.resources.requests.memory Specify the minimum CPU to use
+    ## @param postgresql.primary.resources.requests.cpu Specify the minimum CPU to use
+    ##
+    resources:
+      limits:
+        memory: 1024Mi
+        cpu: 1000m
+      requests:
+        memory: 1024Mi
+        cpu: 1000m
+    ## Postgresql persistence configuration
+    ##
+    persistence:
+      ## @param postgresql.primary.persistence.size Specify the disk size
+      ##
+      size: 10Gi
+      ## @skip postgresql.primary.persistence.annotations
+      ##
+      annotations:
+        ## @skip postgresql.primary.persistence.annotations.helm.sh/resource-policy
+        ##
+        helm.sh/resource-policy: "keep"
+    ## @skip postgresql.primary.extraVolumes
+    extraVolumes:
+    - name: conf
+      emptyDir: { }
+    - name: tmp
+      emptyDir: { }
+    ## @skip postgresql.primary.extraVolumeMounts
+    extraVolumeMounts:
+    - name: conf
+      mountPath: /opt/bitnami/postgresql/conf/
+    - name: tmp
+      mountPath: /opt/bitnami/postgresql/tmp/
+  readReplicas:
+    ## @skip postgresql.readReplicas.replicaCount
+    ##
+    replicaCount: 0
+## @section Redis
+## This section configures a single node Redis cluster.
+## Ref: https://redis.io/docs
+redis:
+  ## @skip redis.enabled
+  ##
+  enabled: true
+  ## @skip redis.serviceAccount.create
+  ##
+  serviceAccount:
+    create: false
+  ## Bitnami Redis&trade; image
+  ## ref: https://hub.docker.com/r/bitnami/redis/tags/
+  ## @skip redis.image.pullPolicy
+  image:
+    pullPolicy: Always
+  ## @skip redis.commonLabels
+  ##
+  commonLabels:
+    ## @skip redis.commonLabels.app.tld/distribution
+    ##
+    "app.tld/distribution": "standalone"
+  ## @skip redis.architecture
+  ##
+  architecture: standalone
+  ## Redis&trade; Authentication parameters
+  ## ref: https://github.com/bitnami/bitnami-docker-redis#setting-the-server-password-on-first-run
+  ##
+  auth:
+    ## @skip redis.auth.enabled
+    enabled: false
+  master:
+    ## Redis resource requests and limits
+    ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param redis.master.resources.limits.cpu Specify the maximum CPU to use
+    ## @param redis.master.resources.limits.memory Specify the maximum Memory to use
+    ## @param redis.master.resources.requests.cpu Specify the minimum CPU to use
+    ## @param redis.master.resources.requests.memory Specify the minimum Memory to use
+    ##
+    resources:
+      limits:
+        cpu: 1000m
+        memory: 1024Mi
+      requests:
+        cpu: 1000m
+        memory: 1024Mi
+    ## Redis persistence configuration
+    ##
+    persistence:
+      ## @param redis.master.persistence.size Specify the disk size
+      ##
+      size: 10Gi
+      ## @skip redis.master.persistence.annotations
+      ##
+      annotations:
+        ## @skip redis.master.persistence.annotations.helm.sh/resource-policy Specify how to recycle the storage resources of the Minio pod
+        ##
+        helm.sh/resource-policy: "keep"
+  replica:
+    ## @skip redis.replica.replicaCount
+    ##
+    replicaCount: 0
+## @section Mailhog
+## This section configures a testing mail server. It configures a mail catcher server that intercepts the emails
+## Its usage is meant for testing purposes, in this way it is not need a real SMTP server.
+## Ref: https://github.com/mailhog/MailHog            - GitHub Project
+## Ref: https://hub.docker.com/r/mailhog/mailhog/tags - Docker Hub Repository
+mailhog:
+  ## Customize the image details
+  ## @param mailhog.image.registry Specify the container registry
+  ## @param mailhog.image.repository Specify the container repository
+  ## @param mailhog.image.tag Specify the container version
+  ## @param mailhog.image.pullPolicy Specify the image download policy
+  ## @param mailhog.image.pullSecrets Specify the secret name that contains registry credentials
+  ##        These secrets need to be created before the deployment of this chart. Usually, it is the Cluster Admin
+  ##        responsibility to configure such details.
+  ##
+  image:
+    registry: "docker.io"
+    repository: "mailhog/mailhog"
+    tag: "v1.0.1"
+    ## Specify an imagePullPolicy policy
+    ## Defaults to 'Always'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: Always
+    ## Specify an array of imagePullSecrets secrets
+    ##  must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: [ ]
+  ## @param mailhog.replicaCount Specify how many replicas to create
+  ##
+  replicaCount: 1
+  ## @param mailhog.podLabels Specify extra labels
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: { }
+  ## @param mailhog.podAnnotations Specify extra annotations
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: { }
+  ## Customize the hardware resources configuration for pods
+  ## @param mailhog.resources.requests.cpu Specify the maximum CPU to use
+  ## @param mailhog.resources.requests.memory Specify the maximum Memory to use
+  ## @param mailhog.resources.limits.cpu Specify the minimum CPU to use
+  ## @param mailhog.resources.limits.memory Specify the minimum Memory to use
+  ##
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  ## Customize the service parameters
+  ##
+  service:
+    ## @param mailhog.service.ports.http Specify the port number for the Web UI
+    ## @param mailhog.service.ports.smtp Specify the port number for the SMTP server
+    ports:
+      http: "8025"
+      smtp: "1025"
+    ## @param mailhog.service.annotations Additional custom annotations
+    ##
+    annotations: { }
+  ## Configure the ingress
+  ## Ref: https://kubernetes.io/docs/user-guide/ingress/
+  ## @param mailhog.ingress.enabled Specify weather to create an ingress
+  ## @param mailhog.ingress.pathType Specify the path type for ingress
+  ## @param mailhog.ingress.hostname Specify the ingress hostname for ingress
+  ## @param mailhog.ingress.annotations Specify the annotations for ingress
+  ## @param mailhog.ingress.tls Specify the TLS for ingress
+  ## @param mailhog.ingress.path Specify the array for ingress
+  ## @param mailhog.ingress.extraPaths Specify the extra paths for ingress
+  ## @param mailhog.ingress.extraTLS Specify the extra TLS configuration for ingress
+  ## @param mailhog.ingress.secret Specify the external secret name for the main hostname
+  ## @param mailhog.ingress.ingressClassName Specify the name of the controller that will handle the Ingress (Kubernetes 1.18+)
+  ##
+  ingress:
+    ## Set to true to enable ingress record generation
+    ##
+    enabled: true
+
+    ## @param mailhog.ingress.selfSigned Create a TLS secret for this ingress record using self-signed certificates generated by Helm
+    ##
+    selfSigned: false
+
+    ## Ingress Path type
+    ##
+    pathType: ImplementationSpecific
+
+    ## When the ingress is enabled, a host pointing to this will be created
+    ##
+    hostname: mail.app.tld
+
+    ## The Path. You may need to set this to '/*' in order to use this
+    ## with ALB ingress controllers.
+    ##
+    path: /
+
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ## Use this parameter to set the required annotations for cert-manager, see
+    ## ref: https://cert-manager.io/docs/usage/ingress/#supported-annotations
+    ##
+    ## e.g:
+    ## annotations:
+    ##   kubernetes.io/ingress.class: nginx
+    ##   cert-manager.io/cluster-issuer: cluster-issuer-name
+    ##
+    annotations: { }
+
+    ## Enable TLS configuration for the hostname defined at space.ingress.hostname parameter
+    ## TLS certificates will be retrieved from a TLS secret with name: {{- printf "%s-tls" .Values.ingress.hostname }}
+    ## You can use the ingress.secrets parameter to create this TLS secret or rely on cert-manager to create it
+    ##
+    tls: false
+
+    ## Any additional arbitrary paths that may need to be added to the ingress under the main host.
+    ## For example: The ALB ingress controller requires a special rule for handling SSL redirection.
+    extraPaths: [ ]
+    ## - path: /*
+    ##   backend:
+    ##     service:
+    ##        name: ssl-redirect
+    ##        port:
+    ##          number: use-annotation
+    ##
+
+    ## The tls configuration for additional hostnames to be covered with this ingress record.
+    ## Use this configuration block also in case the certificates are managed outside this Helm chart.
+    ## see: https://kubernetes.io/docs/concepts/services-networking/ingress/#tls
+    extraTLS: [ ]
+    ## - hosts:
+    ##     - mail.example.com
+    ##   secretName: tls-mail.example.com
+    ##
+
+    ## This is supported in Kubernetes 1.18+ and required if you have more than one IngressClass marked as the default for your cluster.
+    ## ref: https://kubernetes.io/blog/2020/04/02/improvements-to-the-ingress-api-in-kubernetes-1.18/
+    ##
+    ingressClassName: ""
+    ## @param mailhog.ingress.extraRules Additional rules to be covered with this ingress record
+    ## ref: https://kubernetes.io/docs/concepts/services-networking/ingress/#ingress-rules
+    ## e.g:
+    ## extraRules:
+    ## - host: example.local
+    ##     http:
+    ##       path: /
+    ##       backend:
+    ##         service:
+    ##           name: example-svc
+    ##           port:
+    ##             name: http
+    ##
+    extraRules: [ ]
+
+    ## External secret name related to the main hostname in the Ingress definition.
+    ##
+    ## Example:
+    ## secret: "special-mailhog-secret"
+    ##
+    secret: ""
+  ## Create Service Account
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/
+  ## @param mailhog.serviceAccount.create Specify whether a ServiceAccount should be created
+  ## @param mailhog.serviceAccount.name Specify the name of the service account to use. If not set and create is true, a name is generated using the fullname template.
+  ## @param mailhog.serviceAccount.automountServiceAccountToken Specify weather to automount service account token for the server service account
+  ## @param mailhog.serviceAccount.annotations Specify the annotations for service account. Evaluated as a template. Only used if `create` is `true`.
+  ##
+  serviceAccount:
+    create: false
+    name: ""
+    automountServiceAccountToken: true
+    annotations: { }
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param mailhog.podSecurityContext.enabled Enable pods' Security Context
+  ## @param mailhog.podSecurityContext.fsGroup Set pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: true
+    fsGroup: 10001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param mailhog.containerSecurityContext.enabled Enable Security Context
+  ## @param mailhog.containerSecurityContext.runAsUser Specify the ID of the user
+  ## @param mailhog.containerSecurityContext.runAsNonRoot Allow the container to run as not root
+  ## @param mailhog.containerSecurityContext.allowPrivilegeEscalation Allow the container to with elevated permissions
+  ## @param mailhog.containerSecurityContext.readOnlyRootFilesystem Allow the root file system to be read-only
+  ## @param mailhog.containerSecurityContext.capabilities.drop Specify what syscall to not allow
+  ##
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 10001
+    runAsNonRoot: true
+    allowPrivilegeEscalation: false
+    readOnlyRootFilesystem: true
+    capabilities:
+      drop:
+      - NET_RAW
+      - ALL
+  ## Configure extra options for liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param mailhog.livenessProbe.enabled Enable livenessProbe
+  ## @param mailhog.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param mailhog.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param mailhog.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param mailhog.livenessProbe.successThreshold Success threshold for livenessProbe
+  ## @param mailhog.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 30
+    timeoutSeconds: 30
+    successThreshold: 1
+    failureThreshold: 5
+  ## @param mailhog.readinessProbe.enabled Enable readinessProbe
+  ## @param mailhog.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param mailhog.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param mailhog.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param mailhog.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param mailhog.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: true
+    initialDelaySeconds: 60
+    periodSeconds: 10
+    timeoutSeconds: 30
+    successThreshold: 1
+    failureThreshold: 5

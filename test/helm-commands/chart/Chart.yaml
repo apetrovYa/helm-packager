@@ -1,0 +1,24 @@
+apiVersion: v2
+name: kubernetes-stateless-chart
+description: A Generic Helm chart for a stateless Kubernetes application
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+annotations:
+  category: Infrastructure
+keywords:
+  - golden-chart
+  - helper
+  - template
+maintainers:
+  - name: andov
+    url: https://services.acm.org/public/vcard/vcard.cfm?handle=andrei.petrov
+icon: https://avatars.githubusercontent.com/u/878437?s=200&v=4
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+
+

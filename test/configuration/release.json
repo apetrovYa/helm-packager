@@ -1,0 +1,30 @@
+{
+  "metadata": {
+    "name": "a-chart",
+    "description": "A chart for an application"
+  },
+  "spec": {
+    "repositories": [
+      {
+        "name": "development-library",
+        "description": "A Helm repository for development purposes",
+        "url": "oci://registry.tld.com/dev-library",
+        "type": "oci",
+        "env": {
+          "nameSelector": "HELM_CHARTS_DEV_LIBRARY_REGISTRY_"
+        },
+        "notes": [
+          "[ENVIRONMENT VARIABLES] The following suffixes are required USERNAME and PASSWORD"
+        ]
+      },
+      {
+        "name": "stable-library",
+        "url": "oci://registry.tld.com/stable-library",
+        "type": "oci",
+        "env": {
+          "nameSelector": "HELM_CHARTS_STABLE_LIBRARY_REGISTRY_"
+        }
+      }
+    ]
+  }
+}

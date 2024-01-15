@@ -1,0 +1,5 @@
+kubernetes-stateless-chart
+===========================
+Chart Version: {{ .Chart.Version }}
+Support contact:
+{{ .Chart.Maintainers }}
