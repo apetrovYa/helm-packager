@@ -18,7 +18,7 @@ import logger from './logger';
 export default class ApplicationManifest {
     program = new Command();
     name = 'helm-packager';
-    version = '0.0.1';
+    version = '1.0.0';
     description =
         'A command line utility to manufacture OCI formatted Helm charts';
     commands = [
